@@ -15,6 +15,9 @@ angular
 
       return {
         scope: {
+          data: '=?',
+          watchDataChanges: '=?',
+
           settings: '=',
           enabled: '@',
           accessibility: '@',
@@ -278,6 +281,23 @@ angular
 
           element.one('$destroy', function () {
             destroy();
+          });
+
+          $timeout(function() {
+            var innerElements = $(element).find('[ng-repeat]');
+
+            if (scope.data && scope.watchDataChanges) {
+              scope.$watch('data', function (newVal, oldVal) {
+                if (!newVal || newVal === oldVal) return;
+                innerElements.fadeOut('fast');
+
+                destroyAndInit();
+
+                $timeout(function() {
+                  innerElements.fadeIn('fast');
+                });
+              });
+            }
           });
 
           return scope.$watch('settings', function (newVal, oldVal) {

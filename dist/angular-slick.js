@@ -2,7 +2,7 @@
  * angular-slick-carousel
  * DevMark <hc.devmark@gmail.com>
  * https://github.com/devmark/angular-slick-carousel
- * Version: 3.1.7 - 2016-08-04T06:17:55.528Z
+ * Version: 3.1.7 - 2017-04-07T22:07:25.486Z
  * License: MIT
  */
 
@@ -24,6 +24,9 @@ angular
 
       return {
         scope: {
+          data: '=?',
+          watchDataChanges: '=?',
+
           settings: '=',
           enabled: '@',
           accessibility: '@',
@@ -287,6 +290,23 @@ angular
 
           element.one('$destroy', function () {
             destroy();
+          });
+
+          $timeout(function() {
+            var innerElements = $(element).find('[ng-repeat]');
+
+            if (scope.data && scope.watchDataChanges) {
+              scope.$watch('data', function (newVal, oldVal) {
+                if (!newVal || newVal === oldVal) return;
+                innerElements.fadeOut('fast');
+
+                destroyAndInit();
+
+                $timeout(function() {
+                  innerElements.fadeIn('fast');
+                });
+              });
+            }
           });
 
           return scope.$watch('settings', function (newVal, oldVal) {
